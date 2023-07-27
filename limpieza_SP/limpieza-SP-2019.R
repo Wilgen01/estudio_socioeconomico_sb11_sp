@@ -7,9 +7,8 @@ library(Amelia)
 library(janitor)
 
 ## preparando directorios
-dirData <- "C:/wilgen/saber pro/SP_2019.TXT"
-outputDir <- "C:/wilgen/data_limpia_SP/SP_2019.csv"
-outputDirTXT <- "C:/wilgen/data_limpia_SP/SP_2019.TXT"
+dirData <- "D:/seminario/SP/SP_2019.TXT"
+outputDir <- "D:/seminario/SP/limpia/SP_2019.csv"
 
 ## importar data
 df <- read_delim(dirData, 
@@ -22,7 +21,7 @@ df <- NULL
 
 # eliminar las columnas inecesarias del periodo 1
 names(data)
-mantener_columnas <- c(3,4,7,9,21,23,60,61,62,68,79,83,87,91,95,99)
+mantener_columnas <- c(3,4,7,9,21,23,46,47,48,60,61,62,68,79,83,87,91,95,99)
 data_limpia <- data[mantener_columnas]
 names(data_limpia)
 
@@ -68,9 +67,13 @@ data_limpia$pn_global<-round(pnorm(data_limpia$punt_global, md, sd)*100)
 data_limpia %<>% mutate_if(is.character, as.factor) 
 str(data_limpia)
 
+## añadir prefijo para no confundir con data de SP
+data_limpia <- data_limpia %>%
+  rename_with(~paste0("sp_", .), everything())
+names(data_limpia)
+
 ## guardar a CSV 
 write.csv(data_limpia, outputDir)
-write.csv(data_limpia, outputDirTXT)
 
 
 
