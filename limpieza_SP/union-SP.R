@@ -7,9 +7,10 @@ library(Amelia)
 library(janitor)
 
 ## preparando directorios
-data2017 <- "C:/wilgen/data_limpia_SP/SP_2017.TXT"
-data2018 <- "C:/wilgen/data_limpia_SP/SP_2018.TXT"
-data2019 <- "C:/wilgen/data_limpia_SP/SP_2019.TXT"
+outputDir <- "D:/seminario/SP/limpia/SP_unida.csv"
+data2017 <- "D:/seminario/SP/limpia/SP_2017.csv"
+data2018 <- "D:/seminario/SP/limpia/SP_2018.csv"
+data2019 <- "D:/seminario/SP/limpia/SP_2019.csv"
 
 
 
@@ -32,5 +33,9 @@ df17$...1 <- NULL
 df18$...1 <- NULL
 df19$...1 <- NULL
 
-dataUnida <- merge(periodo1, periodo2, all = T)
-merge()
+dataUnida <- rbind(df17, df18, df19)
+names(dataUnida)
+
+
+## guardar data
+write.csv(dataUnida, outputDir)
