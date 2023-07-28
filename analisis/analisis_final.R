@@ -5,6 +5,7 @@ require(tidyverse)
 require(dplyr)
 library(Amelia)
 library(janitor)
+library(ggplot2)
 
 ## preparando directorios
 dirData <- "D:/seminario/data_limpia/final/data_final.csv"
@@ -15,6 +16,8 @@ databk <- data
 
 ##limpiar data 
 data <- data %>% filter(!str_detect(sb11_fami_tienecomputador, "0"))
+data <- data %>% filter(!str_detect(sb11_fami_tieneinternet, "0"))
+data <- data %>% filter(!str_detect(sp_fami_tienecomputador, "0"))
 data <- data %>% filter(!str_detect(sp_fami_tieneinternet, "0"))
 
 
@@ -26,40 +29,69 @@ data$sp_fami_tieneinternet <- factor(data$sp_fami_tieneinternet,
                                               levels = c("No", "Si"),
                                               labels = c("No", "Sí"))
 
-## infliencia de la tecnología en el resultado
-plot(data$sp_fami_tieneinternet,data$sp_pn_global,main ="Influencia de LECTURA CRÍTICA sobre el puntaje global",xlab = "LECTURA CRÍTICA", ylab = "Global")
+## ver el porcentaje de estudiantes que no tienen acceso a intenet o computador
+prop.table(table(data$sb11_fami_tienecomputador)) * 100
+prop.table(table(data$sb11_fami_tieneinternet)) * 100
+prop.table(table(data$sp_fami_tienecomputador)) * 100
+prop.table(table(data$sp_fami_tieneinternet)) * 100
+porcentaje_mismo_valor <- sum(data$sp_fami_tienecomputador == "No" & data$sp_fami_tieneinternet == "No") / nrow(data) * 100
+
+# Dividir los datos en dos grupos: acceso a internet y sin acceso a internet
+con_internet <- data[data$sb11_fami_tieneinternet == "Si", ]
+sin_internet <- data[data$sb11_fami_tieneinternet == "No", ]
+
+## graficos de gauss con acceso a tecnología 
+area <- con_internet$sb11_punt_global
+md_SB11 <- mean(area)
+sd_SB11 <- sd(area)
+
+x <- seq(0, 100, length.out = nrow(data))
+
+pdf_SB11 <- dnorm(x, mean = md_SB11, sd = sd_SB11)
+
+plot(x, pdf_SB11, type = "l", lwd = 2, col = "blue", xlab = "Probabilidad", ylab = "Densidad de probabilidad",
+     main = "Distribución normal puntaje naturales SB11")
+lines(x, pdf_SB11, lwd = 2, col = "blue")
+
+## graficos de gauss sin acceso a tecnología
+area <- sin_internet$sb11_punt_global
+md_SP <- mean(area)
+sd_SP <- sd(area)
+
+x <- seq(0, 100, length.out = nrow(data))
+
+pdf_SP <- dnorm(x, mean = md_SP, sd = sd_SP)
+
+plot(x, pdf_SP, type = "l", lwd = 2, col = "red", xlab = "Probabilidad", ylab = "Densidad de probabilidad",
+     main = "Distribución normal puntaje comunucación escrita SP")
+
+lines(x, pdf_SP, lwd = 2, col = "red")
+legend("topright", legend = c("Saber 11", "Saber Pro"), col = c("blue", "red"), lwd = 2, cex = 0.8)
 
 
 
 
 
 
-# Verificar y ajustar los niveles de las variables de educación de los padres
-SB11_2013$sb11_fami_educacionpadre <- factor(SB11_2013$FAMI_EDUCACIONPADRE, 
-                                            levels = c("Ninguno", "Primaria incompleta",
-                                                       "Primaria completa", "Secundaria (Bachillerato) incompleta",
-                                                       "Secundaria (Bachillerato) completa", "Técnico o tecnólogo incompleto",
-                                                       "Técnico o tecnólogo completo", "Educación profesional incompleta",
-                                                       "Educación profesional completa", "Postgrado"))
-
-SB11_2013$sb11_fami_educacionmadre <- factor(SB11_2013$sb11_fami_educacionmadre, 
-                                            levels = c("Ninguno", "Primaria incompleta",
-                                                       "Primaria completa", "Secundaria (Bachillerato) incompleta",
-                                                       "Secundaria (Bachillerato) completa", "Técnico o tecnólogo incompleto",
-                                                       "Técnico o tecnólogo completo", "Educación profesional incompleta",
-                                                       "Educación profesional completa", "Postgrado"))
-
-ggplot(SB11_2013, aes(x = sb11_fami_educacionpadre, y = sb11_fami_educacionmadre, color = sb11_punt_global)) +
-  geom_point() +
-  labs(title = "Relación entre Rendimiento y Nivel Educativo de los Padres",
-       x = "Nivel Educativo del Padre",
-       y = "Nivel Educativo de la Madre",
-       color = "Puntaje Saber 11")
 
 
-# Cargar las librerías
-library(dplyr)
-library(ggplot2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Convertir las variables sb11_fami_tieneinternet y sb11_fami_tienecomputador a variables categóricas
